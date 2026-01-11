@@ -1,11 +1,13 @@
 import React from "react";
 import MobileLayout from "../components/layout/MobileLayout";
+import ProviderBottomNav from "../components/ui/ProviderBottomNav";
+import { useAuth } from "../context/AuthContext";
 import { User, Bell, Shield, CircleHelp, LogOut, ChevronRight, Settings } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Switch } from "../components/ui/switch";
 import { useSEO } from "../hooks/use-seo";
-import { auth } from "../firebase"; // Added auth import for logout
-import { signOut } from "firebase/auth"; // Added signOut import
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
 
 export default function Profile() {
     useSEO({
@@ -13,10 +15,11 @@ export default function Profile() {
         description: "Manage your account settings and preferences."
     });
 
-    const user = auth.currentUser; // Get current user
+    const { currentUser, userProfile } = useAuth();
+    const NavComponent = userProfile?.role === 'provider' ? ProviderBottomNav : undefined;
 
     return (
-        <MobileLayout>
+        <MobileLayout NavComponent={NavComponent}>
             <div className="p-6 space-y-8">
                 <h1 className="text-2xl font-heading font-bold">Profile</h1>
 
@@ -24,14 +27,14 @@ export default function Profile() {
                 <div className="flex items-center gap-4">
                     <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary p-0.5">
                         <img
-                            src={user?.photoURL || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"} // Use firebase photo or fallback
+                            src={currentUser?.photoURL || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"} // Use firebase photo or fallback
                             alt="Profile"
                             className="w-full h-full rounded-full bg-muted"
                         />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold">{user?.displayName || "User"}</h2>
-                        <p className="text-muted-foreground text-sm">{user?.email || "email@example.com"}</p>
+                        <h2 className="text-xl font-bold">{currentUser?.displayName || "User"}</h2>
+                        <p className="text-muted-foreground text-sm">{currentUser?.email || "email@example.com"}</p>
                         <Button variant="link" className="p-0 h-auto text-primary text-xs font-bold mt-1">
                             Edit Profile
                         </Button>
